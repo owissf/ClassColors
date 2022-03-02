@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-
+use App\Models\UserRole;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\Storage;
 
@@ -31,6 +31,35 @@ class FileService
     {
         $path = Storage::disk($disk)->putFile('', new File($file));
         return '/storage/' . $path;
+    }
+
+    public static function rol($user, $club1, $color1)
+    {
+        $roles = $user->roles;
+        $i = 0;
+        $dd = [];
+        $cc = [];
+        foreach($roles as $role)
+        {
+            $userrole = UserRole::findOrFail($role->pivot->id); 
+            if($club1 == null && $color1 == null)
+            {
+                array_push($dd , $userrole);
+            }
+            if($userrole->club_id == $club1 && $userrole->color_id == $color1)
+            {
+                
+            }
+            else
+            {
+                unset($roles[$i]);
+            }
+            
+            $i = $i + 1;
+        }
+        
+        // dd($cc);
+        return $roles;
     }
 
 }

@@ -24,6 +24,12 @@ class CreateUserRolesTable extends Migration
             ->constrained('roles')
             ->cascadeOnDelete();
 
+            // $table->unsignedBigInteger('club_id')->nullable();
+            // $table->foreign('club_id')->references('id')->on('clubs')->onDelete('cascade');
+
+            // $table->unsignedBigInteger('color_id')->nullable();
+            // $table->foreign('color_id')->references('id')->on('colors')->onDelete('cascade');
+
             $table->timestamps();
         });
     }

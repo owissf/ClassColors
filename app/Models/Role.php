@@ -11,7 +11,7 @@ class Role extends Model
 
     protected $guarded  = [];
 
-    protected $fillable = ['role'];
+    protected $fillable = ['role','club_id'];
 
     public function perms()
     {
@@ -21,4 +21,9 @@ class Role extends Model
     {
         return $this->belongsToMany(User::class, 'user_roles')->withPivot('id');
     }
+    public function allowTo($perm)
+    {
+        $this->perms()->sync($perm , false);
+    }
+
 }

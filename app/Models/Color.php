@@ -24,5 +24,11 @@ class Color extends Model
         return $this->belongsToMany(User::class,'user_colors','color_id','user_id')->withPivot('id');
     }
 
+    public function userroles()
+    {
+        return $this->belongsToMany(UserRole::class,'userrole_colors','color_id' , 'userrole_id');
+    }
+
+
 
 }

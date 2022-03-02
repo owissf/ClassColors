@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\User;
+use App\Service\FileService;
+use Facade\FlareClient\Stacktrace\File;
 use Illuminate\Support\Facades\Auth;
 
 $op = 0;
@@ -265,20 +268,25 @@ $x = $op % 3;
           </ul>
           <ul class="navbar-nav ms-auto mb-2 mb-md-0">
             @auth
-            @can('addColor')
+            @can('addColor' , [$club->id , ''])
             <li class="nav-item">
               <a class="nav-link" href="#" data-toggle="modal" data-target="#addcolor">إضافة شعبة</a>
             </li>
             @endcan
-            @can('delSchool')
+            @can('delSchool' , [$club->id , ''])
             <li class="nav-item">
               <a class="nav-link" href="#" data-toggle="modal" data-target="#delclub">حذف المدرسة</a>
             </li>
             @endcan
-            @can('delTe')
+            @can('delTeClub' , [$club->id , ''])
             <li class="nav-item">
               <a class="nav-link" href="#" data-toggle="modal" data-target="#delte">حذف المشرفين</a>
             </li>
+            @endcan
+            @can ('dashboard' , [$club->id , '']) 
+              <li class="nav-item">
+                <a class="nav-link" aria-current="page" href="{{ route('dash.index' , $club->id) }}">لوحة التحكم</a>
+              </li>
             @endcan
             @endauth
             @foreach ($colors as $color)
@@ -301,8 +309,8 @@ $x = $op % 3;
 
   <main>
 
-    @auth
-    @can('delSchool')
+    
+    @can('delSchool' , [$club->id , ''])
     <div class="modal fade" id="delclub">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -332,7 +340,7 @@ $x = $op % 3;
       </div>
     </div>
     @endcan
-    @can('addColor')
+    @can('addColor' , [$club->id , ''])
     <div class="modal fade" id="addcolor">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -387,7 +395,7 @@ $x = $op % 3;
       </div>
     </div>
     @endcan
-    @can('delTe')
+    @can('delTeClub' , [$club->id , ''])
     <div class="modal fade" id="delte">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -407,12 +415,32 @@ $x = $op % 3;
             <label for="sel">اختر المشرف الذي تريد حذفه </label>
             <select class="form-select" size="3" name="selectt" aria-label="size 3 select example" id="sel">
               
-              @for($i = 0 ; $i < count($usersclubid) ; $i = $i + 3)
-              @if($usersclubid[$i + 2] != $admin)
-              <option value="{{ $usersclubid[$i] }}">{{ $usersclubid[$i + 1] }}</option>
-              @endif
-              
-              @endfor
+            @for($i = 0 ; $i < count($usersclubid) ; $i = $i + 3)
+                <?php
+                $userq = User::findOrFail($usersclubid[$i + 2]);
+                $user = Auth::user();
+                $rol = FileService::rol($userq , $club->id , $color = '');
+                $rolu = FileService::rol($user , $club->id , $color = '');
+                $permsu = $rolu->map->perms->flatten()->pluck('perm')->unique();
+                $permsq = $rol->map->perms->flatten()->pluck('perm')->unique();
+                ?>
+                @if($user->id != $club->user_id)
+                  @if($rolu->contains('role','adminer'))
+                    @if(!$rol->contains('role','adminer'))
+                      <option value="{{ $usersclubid[$i] }}">{{ $usersclubid[$i + 1] }}</option>
+                    @endif
+                  @else
+                    @if(!$permsq->contains('delTeClub'))
+                      <option value="{{ $usersclubid[$i] }}">{{ $usersclubid[$i + 1] }}</option>
+                    @endif
+                  @endif
+                @else
+                  @if($usersclubid[$i + 2] != $admin)
+                    <option value="{{ $usersclubid[$i] }}">{{ $usersclubid[$i + 1] }}</option>
+                  @endif
+                @endif
+                
+                @endfor
             </select>
           </div>
           <!-- Modal footer -->
@@ -430,7 +458,7 @@ $x = $op % 3;
     </div>
     @endcan
     
-    @endauth
+    
     <!-- Marketing messaging and featurettes
   ================================================== -->
     <!-- Wrap the rest of the page in another container to center all the content. -->

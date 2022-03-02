@@ -14,6 +14,8 @@ use App\Models\Color;
 use App\Models\Role;
 use App\Models\RolePerm;
 use App\Models\Student;
+use App\Models\UserRole;
+use App\Models\UserroleClub;
 use App\Service\FileService;
 use Database\Factories\userpermsFactory;
 use Illuminate\Support\Facades\Auth;
@@ -28,112 +30,187 @@ class ClubController extends Controller
     public function index()
     {
         
-        if(empty(Role::all()) == false)
-        {
-            Role::create([
-                'role' => 'adminer'
+        /*
+            Role::firstOrCreate([
+                'role' => 'adminclub'
             ]);
-            Role::create([
-                'role' => 'editer'
+            Role::firstOrCreate([
+                'role' => 'enterClub'
             ]);
-            Role::create([
-                'role' => 'teacher'
+            Role::firstOrCreate([
+                'role' => 'enterColor'
             ]);
-            Role::create([
-                'role' => 'student'
+        
+
+            Perm::firstOrCreate([
+                'perm' => 'adminclub'
             ]);
-        }
-        if(!empty(Perm::all()) == false)
-        {
-            Perm::create([
+            Perm::firstOrCreate([
+                'perm' => 'delTeColor'
+            ]);
+            Perm::firstOrCreate([
+                'perm' => 'addRoles'
+            ]);
+            Perm::firstOrCreate([
+                'perm' => 'addRole'
+            ]);
+            Perm::firstOrCreate([
                 'perm' => 'admin'
             ]);
-            Perm::create([
+            Perm::firstOrCreate([
+                'perm' => 'dashboard'
+            ]);
+            Perm::firstOrCreate([
+                'perm' => 'delTeClub'
+            ]);
+            Perm::firstOrCreate([
                 'perm' => 'addColor'
             ]);
-            Perm::create([
+            Perm::firstOrCreate([
                 'perm' => 'delSchool'
             ]);
-            Perm::create([
+            Perm::firstOrCreate([
                 'perm' => 'delTe'
             ]);
-            Perm::create([
+            Perm::firstOrCreate([
                 'perm' => 'addTeOld'
             ]);
-            Perm::create([
+            Perm::firstOrCreate([
                 'perm' => 'addTeNew'
             ]);
-            Perm::create([
+            Perm::firstOrCreate([
                 'perm' => 'delColor'
             ]);
-            Perm::create([
+            Perm::firstOrCreate([
                 'perm' => 'addStudent'
             ]);
-            Perm::create([
+            Perm::firstOrCreate([
                 'perm' => 'addScore'
             ]);
-            Perm::create([
+            Perm::firstOrCreate([
                 'perm' => 'delStudent'
             ]);
-            Perm::create([
+            Perm::firstOrCreate([
                 'perm' => 'addButton'
             ]);
-            Perm::create([
+            Perm::firstOrCreate([
                 'perm' => 'delButton'
             ]);
-        }
-        if(!empty(RolePerm::all()) == false)
-        {
-            RolePerm::create([
+            Perm::firstOrCreate([
+                'perm' => 'enterClub'
+            ]);
+            Perm::firstOrCreate([
+                'perm' => 'enterColor'
+            ]);
+        
+       
+            RolePerm::firstOrCreate([
                 'role_id' => '1',
                 'perm_id' => '1'
             ]);
-            RolePerm::create([
+            RolePerm::firstOrCreate([
                 'role_id' => '1',
                 'perm_id' => '2'
             ]);
-            RolePerm::create([
+            RolePerm::firstOrCreate([
                 'role_id' => '1',
                 'perm_id' => '3'
             ]);
-            RolePerm::create([
+            RolePerm::firstOrCreate([
                 'role_id' => '1',
                 'perm_id' => '4'
             ]);
-            RolePerm::create([
+            RolePerm::firstOrCreate([
                 'role_id' => '1',
                 'perm_id' => '5'
             ]);
-            RolePerm::create([
+            RolePerm::firstOrCreate([
                 'role_id' => '1',
                 'perm_id' => '6'
             ]);
-            RolePerm::create([
+            RolePerm::firstOrCreate([
                 'role_id' => '1',
                 'perm_id' => '7'
             ]);
-            RolePerm::create([
+            RolePerm::firstOrCreate([
                 'role_id' => '1',
                 'perm_id' => '8'
             ]);
-            RolePerm::create([
+            RolePerm::firstOrCreate([
                 'role_id' => '1',
                 'perm_id' => '9'
             ]);
-            RolePerm::create([
+            RolePerm::firstOrCreate([
                 'role_id' => '1',
                 'perm_id' => '10'
             ]);
-            RolePerm::create([
+            RolePerm::firstOrCreate([
                 'role_id' => '1',
                 'perm_id' => '11'
             ]);
-            RolePerm::create([
+            RolePerm::firstOrCreate([
                 'role_id' => '1',
                 'perm_id' => '12'
             ]);
-        }
+            RolePerm::firstOrCreate([
+                'role_id' => '1',
+                'perm_id' => '13'
+            ]);
+            RolePerm::firstOrCreate([
+                'role_id' => '1',
+                'perm_id' => '14'
+            ]);
+            RolePerm::firstOrCreate([
+                'role_id' => '1',
+                'perm_id' => '15'
+            ]);
+            RolePerm::firstOrCreate([
+                'role_id' => '1',
+                'perm_id' => '16'
+            ]);
+            RolePerm::firstOrCreate([
+                'role_id' => '1',
+                'perm_id' => '17'
+            ]);
+            RolePerm::firstOrCreate([
+                'role_id' => '1',
+                'perm_id' => '18'
+            ]);
+            RolePerm::firstOrCreate([
+                'role_id' => '1',
+                'perm_id' => '19'
+            ]);
+            RolePerm::firstOrCreate([
+                'role_id' => '1',
+                'perm_id' => '20'
+            ]);
+            RolePerm::firstOrCreate([
+                'role_id' => '2',
+                'perm_id' => '19'
+            ]);
+            RolePerm::firstOrCreate([
+                'role_id' => '3',
+                'perm_id' => '20'
+            ]);
+
+            
+            /*
+            $perms = Perm::all();
+            unset($perms[0]);
+            foreach($perms as $perm)
+            {
+                $per = Perm::firstOrCreate([
+                    'perm' => 'add' . $perm->perm
+                ]);
+                RolePerm::firstOrCreate([
+                    'role_id' => '1',
+                    'perm_id' => $per->id
+                ]);
+            }
+            */
+        
         $clubs = Club::all();
+        // return $clubs;
         return view('club.index', compact( 'clubs'));
     }
 
@@ -155,6 +232,7 @@ class ClubController extends Controller
      */
     public function store(Request $request)
     {
+        $this->middleware('can:addSchool');
         $user = Auth::user()->id;
         $validated = $request->validate([
             'name' => 'required',
@@ -171,9 +249,27 @@ class ClubController extends Controller
         $userclub = [
             'club_id' => $club->id,
             'user_id' => $user,
+            'useradmin' => '1'
         ];
         //return $clubuserperm;
-        $userclub1 = UserClub::create($userclub);
+        $userclub1 = UserClub::firstOrcreate($userclub);
+        
+        $userrole = UserRole::firstOrCreate([
+            'user_id' => $user,
+            'role_id' => '1',
+        ]);
+        UserroleClub::firstOrCreate([
+            'club_id' => $club->id,
+            'userrole_id' => $userrole->id,
+        ]);
+        $userrole = UserRole::firstOrCreate([
+            'user_id' => $user,
+            'role_id' => '2',
+        ]);
+        UserroleClub::firstOrCreate([
+            'club_id' => $club->id,
+            'userrole_id' => $userrole->id,
+        ]);
         return redirect()->route('color.index' , $club->id );
     }
 

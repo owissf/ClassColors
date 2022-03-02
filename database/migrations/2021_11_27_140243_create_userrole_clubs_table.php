@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUserClubsTable extends Migration
+class CreateUserroleClubsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,20 +13,17 @@ class CreateUserClubsTable extends Migration
      */
     public function up()
     {
-        Schema::create('user_clubs', function (Blueprint $table) {
+        Schema::create('userrole_clubs', function (Blueprint $table) {
             $table->id();
 
             $table->foreignId('club_id')
             ->constrained('clubs')
             ->cascadeOnDelete();
 
-
-            $table->foreignId('user_id')
-            ->constrained('users')
+            $table->foreignId('userrole_id')
+            ->constrained('user_roles')
             ->cascadeOnDelete();
-
-            $table->string('useradmin');
-
+            
             $table->timestamps();
         });
     }
@@ -38,6 +35,6 @@ class CreateUserClubsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_clubs');
+        Schema::dropIfExists('userrole_clubs');
     }
 }

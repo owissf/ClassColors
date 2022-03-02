@@ -526,22 +526,12 @@ foreach ($clubs as $club) {
           </ul>
           <ul class="navbar-nav me-auto mb-2 mb-md-0">
             @auth
-            @can ('dashboard' , App\Models\Club::class)
-            <li class="nav-item">
-              <a class="nav-link" aria-current="page" href="{{ route('dashclub.index') }}">لوحة التحكم</a>
-            </li>
-            @endcan
-            @can ('addSchool' , App\Models\Club::class)
-            <li class="nav-item">
-              <a class="nav-link" aria-current="page" href="" data-toggle="modal" data-target="#addclub">إضافة نادي</a>
-            </li>
-            @endcan
 
             @endauth
             @foreach ($clubs as $club)
 
             <li class="nav-item">
-              <a class="nav-link" href="{{ route('color.index', $club->id ) }}">{{ $club->name }}</a>
+              <a class="nav-link" href="{{ route('dash.index', $club->id ) }}">{{ $club->name }}</a>
             </li>
             @endforeach
 
@@ -557,109 +547,7 @@ foreach ($clubs as $club) {
   </header>
   <main>
 
-    @auth
-    @can ('addSchool' , App\Models\Club::class)
-    <div class="modal fade" id="addclub">
-      <div class="modal-dialog">
-        <div class="modal-content">
-
-          <!-- Modal Header -->
-          <div class="modal-header">
-            <h4 class="modal-title">إضافة مدرسة</h4>
-            <button type="button" class="bg-white border-0 fs-2" data-dismiss="modal">&times;</button>
-          </div>
-
-          <!-- Modal body -->
-          <div class="modal-body">
-            <form method="post" action="{{ route('club.store', Auth::user()->id ) }}" autocomplete="off" enctype="multipart/form-data">
-              @csrf
-              <div class="form-group">
-                <label for="name" class="float-end">اسم المدرسة :\</label>
-                <input type="text" name="name" required value="{{ old('name') }}" placeholder="اسم المدرسة" class="form-control" id="name">
-                @if($errors->has('name'))
-                <div class="error" style="color:red">{{ $errors->first('name') }}</div>
-                @endif
-              </div>
-
-
-              <div class="form-group">
-                <label for="img" class="float-end">الصورة :</label>
-                <input type="file" name="image" id="img" class="form-control">
-                @if($errors->has('image'))
-                <div class="error" style="color:red">{{ $errors->first('image') }}</div>
-                @endif
-              </div>
-
-          </div>
-
-
-          <!-- Modal footer -->
-          <div class="modal-footer">
-            <button type="submit" class="btn btn-primary float-start">
-              {{ __('موافق') }}
-            </button>
-            </form>
-          </div>
-
-        </div>
-      </div>
-    </div>
-    @endcan
-    @endauth
     <div id="myCarousel" class="carousel slide" data-bs-ride="carousel">
-      <div class="carousel-indicators">
-        @foreach ($clubs as $club)
-        <?php if ($oi == 0) { ?>
-          <button type="button" data-bs-target="#myCarousel" class="active" data-bs-slide-to="{{$oi}}" aria-current="true" aria-label="Slide {{$oi+1}}"></button>
-        <?php } else { ?>
-          <button type="button" data-bs-target="#myCarousel" data-bs-slide-to="{{$oi}}" aria-label="Slide {{$oi+1}}"></button>
-        <?php } ?>
-        <?php $oi += 1; ?>
-        @endforeach
-      </div>
-      <div class="carousel-inner">
-        <!--<div class="carousel-item active">
-        <div class="container">
-          <div class="carousel-caption mb-5" style="color : red;">
-
-          </div>
-        </div>
-      </div>-->
-        @foreach ($clubs as $club)
-
-        <?php if ($dd == 0) { ?>
-          <img src='{{ "/storage/{$club->image}" }}' style="width: 100%;
-  
-
-  margin : 0 auto;
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
-  background-color : red;" class="carousel-item active" />
-
-        <?php $dd = 1;
-        } else { ?>
-          <img src='{{ "/storage/{$club->image}" }}' style="
-
-           width: 100%;
-  
-  margin : 0 auto;
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
-  background-color : red;" class="carousel-item" />
-        <?php } ?>
-        @endforeach
-
-      </div>
-
-
-      <button class="carousel-control-prev" style="left:auto !important;" type="button" data-bs-target="#myCarousel" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">السابق</span>
-      </button>
-      <button class="carousel-control-next" type="button" data-bs-target="#myCarousel" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">التالي</span>
-      </button>
     </div>
 
 
@@ -678,7 +566,7 @@ foreach ($clubs as $club) {
   background-color : red " alt=" {{ $club->name }} " />
 
                 <h2 class="purple">{{ $club->name }}</h2>
-                <p class=" purple"><a class="btn btn-secondary bg-purple" href="{{ route('color.index', $club->id ) }}">دخول</a></p>
+                <p class=" purple"><a class="btn btn-secondary bg-purple" href="{{ route('dash.index', $club->id ) }}">دخول</a></p>
               </div>
             <?php } else { ?>
               <div class="col-lg-4" style=" margin : 0 auto;">
@@ -691,7 +579,7 @@ foreach ($clubs as $club) {
   background-color : red;" alt="{{ $club->name }}" />
 
                 <h2 class="purple">{{ $club->name }}</h2>
-                <p class=" purple"><a class="btn btn-secondary bg-purple" href="{{ route('color.index', $club->id ) }}">دخول</a></p>
+                <p class=" purple"><a class="btn btn-secondary bg-purple" href="{{ route('dash.index', $club->id ) }}">دخول</a></p>
               </div>
             <?php }
           } else { ?>
@@ -706,33 +594,14 @@ foreach ($clubs as $club) {
   background-color : red;" alt=" {{ $club->name }} " />
 
               <h2 class="purple">{{ $club->name }}</h2>
-              <p class=" purple"><a class="btn btn-secondary bg-purple" href="{{ route('color.index', $club->id ) }}">دخول</a></p>
+              <p class=" purple"><a class="btn btn-secondary bg-purple" href="{{ route('dash.index', $club->id ) }}">دخول</a></p>
             </div>
         <?php }
           $op += 1;
 
         endforeach; ?>
       </div>
-              @if($errors->has('image'))
-                <div class="alert alert-warning alert-dismissible fade show" role="alert" style="color: #842029 !important; 
-                    background-color: #f8d7da !important;
-                    border-color: #f5c2c7 !important; 
-                    ">
-                  <strong>Erorr File!</strong> {{ $errors->first('image') }}
-                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                
-              @endif
-              @if($errors->has('name'))
-                <div class="alert alert-warning alert-dismissible fade show" role="alert" style="color: #842029 !important; 
-                    background-color: #f8d7da !important;
-                    border-color: #f5c2c7 !important; 
-                    ">
-                  <strong>Erorr File!</strong> {{ $errors->first('name') }}
-                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                
-              @endif
+
               
     </div>
   </main>

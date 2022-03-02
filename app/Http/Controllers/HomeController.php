@@ -23,7 +23,6 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $clubs = Club::all();
-        return view('club.index', compact( 'clubs'));
+        return redirect()->route('club.index');
     }
 }

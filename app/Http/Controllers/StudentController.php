@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Button;
 use App\Models\ButtonColor;
+use App\Models\Club;
 use App\Models\ClubColor;
 use App\Models\Color;
 use App\Models\User;
@@ -16,6 +17,7 @@ use App\Models\Role;
 use App\Models\RolePerm;
 use App\Models\Student;
 use App\Models\UserRole;
+use App\Service\FileService;
 use Database\Seeders\ClubcolorsStudentSeeder;
 use Illuminate\Auth\Events\Validated;
 use Illuminate\Http\Request;
@@ -29,13 +31,13 @@ class StudentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $col = Color::findOrFail(ClubColor::findOrFail(request('clubColor'))->color_id);
-        $this->authorize('enter-color' , $col);
         $clubColor = ClubColor::findOrFail(request('clubColor'));
         $thecolor = $clubColor->color_id;
         $club = Color::findOrFail($thecolor)->clubs[0];
+        $this->authorize('enterColor' , ["",$thecolor]);
         $admin = $club->user_id;
         $students = collect($clubColor->students)->sortByDesc('score');
         $buttons = $col->buttons;
@@ -74,7 +76,7 @@ class StudentController extends Controller
         ]);
         $student = Student::create($validated);
         $clubColor = request('clubColor');
-        $studentc = clubcolorsStudent::create([
+        $studentc = clubcolorsStudent::firstOrCreate([
             'clubcolor_id' => $clubColor,
             'student_id' => $student->id
         ]);
@@ -117,14 +119,38 @@ class StudentController extends Controller
         return redirect()->back();
     }
 
-    public function delte(Request $request)
+    public function delTeColor(Request $request)
     {
         $dell = $request->validate([
             'selectt' => 'required'
         ]);
-        //return $dell;
         $del = UserColor::findOrFail($dell);
-        $del[0]->delete();
+        $user = Auth::user();
+        $userq = User::find($del[0]->user_id);
+        $rol = FileService::rol($userq , request('club_id') , request('color_id'));
+        $rolu = FileService::rol($user , request('club_id') , request('color_id'));
+        $perms = $rol->map->perms->flatten()->pluck('perm')->unique();
+        $permsu = $rolu->map->perms->flatten()->pluck('perm')->unique();
+        if(Club::find(request('club_id'))->user_id != $user->id){
+            if($rolu->contains('role','adminer')){
+                if(!$rol->contains('role' , 'adminer'))
+                {
+                    $del[0]->delete();
+                }
+            }
+            else{
+                if($permsu->contains('delTeColor')){
+                    if(!$perms->contains('delTeColor')){
+                        $del[0]->delete();
+                    }
+                }
+            }
+        }
+        else{
+            if($userq->id != $user->id){
+                $del[0]->delete();
+            }
+        }
         return redirect()->back();
     }
 
@@ -147,15 +173,17 @@ class StudentController extends Controller
         $val = User::where('email',$request['email'])->first();
                     $usercolor = [
                         'color_id' => request('color_id'),
-                        'user_id' => $val->id
+                        'user_id' => $val->id,
+                        
                     ];
-                    $usercolor1 = UserColor::create($usercolor);
+                    $usercolor1 = UserColor::firstOrCreate($usercolor);
                     $club = Color::findOrFail(request('color_id'))->clubs[0];
                     $userclub = [
                         'club_id' => $club->id,
                         'user_id' => $val->id,
+                        'useradmin' => '0'
                     ];
-                    $userclub1 = UserClub::create($userclub);
+                    $userclub1 = UserClub::firstOrCreate($userclub);
                     return redirect()->back();    
     }
 
@@ -166,7 +194,7 @@ class StudentController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
-        $val = User::create([
+        $val = User::firstOrCreate([
             'name' => $request['name'],
             'email' => $request['email'],
             'password' => Hash::make($request['password']),
@@ -176,13 +204,14 @@ class StudentController extends Controller
                         'color_id' => request('color_id'),
                         'user_id' => $val->id
                     ];
-                    $usercolor1 = UserColor::create($usercolor);
+                    $usercolor1 = UserColor::firstOrCreate($usercolor);
                     $club = Color::findOrFail(request('color_id'))->clubs[0];
                     $userclub = [
                         'club_id' => $club->id,
                         'user_id' => $val->id,
+                        'useradmin' => '0'
                     ];
-                    $userclub1 = UserClub::create($userclub);
+                    $userclub1 = UserClub::firstOrCreate($userclub);
                     return redirect()->back();    
     }
 

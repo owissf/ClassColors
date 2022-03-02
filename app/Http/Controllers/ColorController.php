@@ -12,6 +12,9 @@ use App\Models\Student;
 use App\Models\User;
 use App\Models\UserClub;
 use App\Models\userPerm;
+use App\Models\UserRole;
+use App\Models\UserroleColor;
+use App\Service\FileService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -25,7 +28,7 @@ class ColorController extends Controller
     public function index()
     {
         $club = Club::findOrFail(request('club'));
-        $this->authorize('enter-club' , $club);
+        $this->authorize('enterClub' , [$club->id,""]);
         $colors = $club->colors;
         $admin = $club->user_id;
         $usersclub = $club->users;
@@ -85,18 +88,40 @@ class ColorController extends Controller
         $validated['image'] = $path;
         $color = Color::create($validated);
 
-        $color_id = Color::all()->last()->id;
+        
         $clubb = request('club');
-        $colooo = ClubColor::create([
+        $colooo = ClubColor::firstOrCreate([
             'club_id' => $clubb,
-            'color_id' => $color_id,
+            'color_id' => $color->id,
         ]);
         $usercolor = [
-            'color_id' => $color_id,
-            'user_id' => Club::find(request('club'))->user_id
+            'color_id' => $color->id,
+            'user_id' => Club::find($clubb)->user_id
         ];
-        //return $usercolor;
-        $usercolor1 = UserColor::create($usercolor);
+        $usercolor1 = UserColor::firstOrCreate($usercolor);
+        $usercolor = [
+            'color_id' => $color->id,
+            'user_id' => Auth::user()->id
+        ];
+        $usercolor1 = UserColor::firstOrCreate($usercolor);
+        $userrole = [
+            'user_id' => Auth::user()->id,
+            'role_id' => 3,
+        ];
+        $user2 = UserRole::firstOrCreate($userrole);
+        $userrole = [
+            'user_id' => Club::find($clubb)->user_id,
+            'role_id' => 3,
+        ];
+        $user1 = UserRole::firstOrCreate($userrole);
+        UserroleColor::firstOrCreate([
+            'color_id' => $color->id,
+            'userrole_id' => $user1->id,
+        ]);
+        UserroleColor::firstOrCreate([
+            'color_id' => $color->id,
+            'userrole_id' => $user2->id,
+        ]);
         return redirect()->back();
         
     }
@@ -123,8 +148,42 @@ class ColorController extends Controller
         //
     }
 
-    public function delte(Request $request)
+    public function delTeClub(Request $request)
     {
+        
+        $dell = $request->validate([
+            'selectt' => 'required'
+        ]);
+        $del = UserClub::findOrFail($dell);
+        $user = Auth::user();
+        $userq = User::find($del[0]->user_id);
+        $rol = FileService::rol($userq , request('club_id') , $color = '');
+        $rolu = FileService::rol($user , request('club_id') , $color = '');
+        $perms = $rol->map->perms->flatten()->pluck('perm')->unique();
+        $permsu = $rolu->map->perms->flatten()->pluck('perm')->unique();
+        if(Club::find(request('club_id'))->user_id != $user->id){
+            if($rolu->contains('role','adminer')){
+                if(!$rol->contains('role' , 'adminer'))
+                {
+                    $del[0]->delete();
+                }
+            }
+            else{
+                if($permsu->contains('delTeClub')){
+                    if(!$perms->contains('delTeClub')){
+                        $del[0]->delete();
+                    }
+                }
+            }
+        }
+        else{
+            if($userq->id != $user->id){
+                $del[0]->delete();
+            }
+        }
+        return redirect()->back(); 
+
+/*
         $dell = $request->validate([
             'selectt' => 'required'
         ]);
@@ -164,13 +223,16 @@ class ColorController extends Controller
                 }
             }
         }
-        foreach ($del as $de)
-        {
-            $de->delete(); 
-            User::find($de->user_id)->delete();
+        $rol = FileService::rol($user , request('club_id') , $color = '');
+        if(!$rol->contains('role','adminer')){
+            foreach ($del as $de)
+            {
+                $de->delete(); 
+                //User::find($de->user_id)->delete();
+            }
         }
         
-        return redirect()->route('color.index', request('club_id'));
+        return redirect()->route('color.index', request('club_id'));*/
     }
 
     /**
@@ -199,12 +261,6 @@ class ColorController extends Controller
     {
         $color = Color::all()->find(request('color'));
         $clubColor = ClubColor::find($color->clubs[0]->pivot->id);
-        $students = $clubColor->students;
-        //return $students;
-        foreach($students as $student)
-        {
-            Student::find($student->id)->delete();   
-        }
         Color::all()->find(request('color'))->delete();
         return redirect()->route('color.index', $clubColor->club_id);
     }

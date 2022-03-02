@@ -4,6 +4,9 @@
 use App\Models\ClubColor;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Color;
+use App\Models\User;
+use App\Service\FileService;
+
 ?>
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -251,7 +254,7 @@ td{
   <div class="container text-center">  
 <input type="button" value="Go back" onclick="history.back()" class="btn btn-secondary" style="position: fixed;bottom : 10%; left: 10%;">
 @auth    
-@can('addScore')
+@can('addScore', [$club->id , $thecolor])
 <div class="modal fade" id="oo">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -285,10 +288,10 @@ td{
           <!-- Modal footer -->
           <div class="modal-footer">
           <button type="button" class="btn btn-danger" data-dismiss="modal">غير موافق</button>
-          @can('addButton')
+          @can('addButton', [$club->id , $thecolor])
           <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addbutton">إضافة زر</button>
           @endcan
-          @can('delButton')
+          @can('delButton', [$club->id , $thecolor])
            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#delbutton">حذف زر</button>
           @endcan
           <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="
@@ -314,7 +317,7 @@ td{
       </div>
     </div>
 @endcan
-@can('addStudent')
+@can('addStudent', [$club->id , $thecolor])
     <div class="modal fade" id="addstudent">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -380,7 +383,7 @@ td{
       </div>
     </div>
 @endcan
-@can('addButton')
+@can('addButton', [$club->id , $thecolor])
     <div class="modal fade" id="addbutton">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -435,7 +438,7 @@ td{
       </div>
     </div>
 @endcan
-@can('delButton')
+@can('delButton', [$club->id , $thecolor])
     <div class="modal fade" id="delbutton">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -474,7 +477,7 @@ td{
     </div>
 @endcan
 
-      @can('addScore')
+      @can('addScore', [$club->id , $thecolor])
       <!-- Modal -->
       <div class="modal fade" id="exampleModal">
         <div class="modal-dialog">
@@ -514,7 +517,7 @@ td{
         </div>
       </div>
       @endcan
-    @can('delStudent')
+    @can('delStudent', [$club->id , $thecolor])
     <div class="modal fade" id="os">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -547,7 +550,7 @@ td{
       </div>
     </div>
     @endcan
-    @can('delColor')
+    @can('delColor', [$club->id , $thecolor])
       <div class="modal fade" id="delcolor">
         <div class="modal-dialog">
           <div class="modal-content">
@@ -580,7 +583,7 @@ td{
         </div>
       </div>
       @endcan
-      @can('delTe')
+      @can('delTeColor', [$club->id , $thecolor])
       <div class="modal fade" id="delte">
         <div class="modal-dialog">
           <div class="modal-content">
@@ -591,7 +594,7 @@ td{
               <button type="button" class="bg-white border-0 fs-2" data-dismiss="modal">&times;</button>
             </div>
             <form  method="post" 
-              action="{{ route('student.del.te') }}"
+              action="{{ route('student.del.te' , [ $thecolor , $club->id ]) }}"
                       autocomplete="off"
                       enctype="multipart/form-data">
                 @csrf
@@ -601,8 +604,28 @@ td{
               <select class="form-select" size="3" name="selectt" aria-label="size 3 select example" id="sel">
                 
                 @for($i = 0 ; $i < count($userscolorid) ; $i = $i + 3)
-                @if($userscolorid[$i + 2] != $admin)
-                <option value="{{ $userscolorid[$i] }}">{{ $userscolorid[$i + 1] }}</option>
+                <?php
+                $userq = User::findOrFail($userscolorid[$i + 2]);
+                $user = Auth::user();
+                $rol = FileService::rol($userq , $club->id , $thecolor);
+                $rolu = FileService::rol($user , $club->id , $thecolor);
+                $permsu = $rolu->map->perms->flatten()->pluck('perm')->unique();
+                $permsq = $rol->map->perms->flatten()->pluck('perm')->unique();
+                ?>
+                @if($user->id != $club->user_id)
+                  @if($rolu->contains('role','adminer'))
+                    @if(!$rol->contains('role','adminer'))
+                      <option value="{{ $userscolorid[$i] }}">{{ $userscolorid[$i + 1] }}</option>
+                    @endif
+                  @else
+                    @if(!$permsq->contains('delTeColor'))
+                      <option value="{{ $userscolorid[$i] }}">{{ $userscolorid[$i + 1] }}</option>
+                    @endif
+                  @endif
+                @else
+                  @if($userscolorid[$i + 2] != $admin)
+                    <option value="{{ $userscolorid[$i] }}">{{ $userscolorid[$i + 1] }}</option>
+                  @endif
                 @endif
                 
                 @endfor
@@ -622,7 +645,7 @@ td{
         </div>
       </div>
       @endcan
-      @can('addTeNew')
+      @can('addTeNew', [$club->id , $thecolor])
       <div class="modal fade" id="addte-new">
         <div class="modal-dialog">
           <div class="modal-content">
@@ -708,7 +731,7 @@ td{
         </div>
       </div>
       @endcan
-      @can('addTeOld')
+      @can('addTeOld', [$club->id , $thecolor])
       <div class="modal fade" id="addte-old">
         <div class="modal-dialog">
           <div class="modal-content">
@@ -760,35 +783,35 @@ td{
       @endcan
 <h1 class="text-center my-4 h1 ">أسماء الطلاب </h1>
 <div class="row">
-@can('addStudent')
+@can('addStudent', [$club->id , $thecolor])
   <div class="col-lg col-sm-4 col-xs-6">
     <button type="button" class="btn btn-primary float-end mb-4" data-toggle="modal" data-target="#addstudent">
         إضافة طالب
       </button>
   </div>
   @endcan
-  @can('delColor')
+  @can('delColor', [$club->id , $thecolor])
   <div class="col-lg col-sm-4 col-xs-6">
     <button type="button" class="btn btn-primary float-end mb-4" data-toggle="modal" data-target="#delcolor">
        حذف الشعبة
       </button>
   </div>
   @endcan
-  @can('addTeNew')
+  @can('addTeNew', [$club->id , $thecolor])
   <div class="col-lg col-sm-4 col-xs-6">
     <button type="button" class="btn btn-primary float-end mb-4" data-toggle="modal" data-target="#addte-new">
        إضافة مشرف جديد
       </button>
   </div>
   @endcan
-  @can('addTeOld')
+  @can('addTeOld', [$club->id , $thecolor])
   <div class="col-lg col-sm-5 col-xs-6">
     <button type="button" class="btn btn-primary float-end mb-4" data-toggle="modal" data-target="#addte-old">
      إضافة مشرف قديم
       </button>
   </div>
   @endcan
-  @can('delTe')
+  @can('delTeColor', [$club->id , $thecolor])
   <div class="col-lg col-sm-5 col-xs-12">
     <button type="button" class="btn btn-primary float-end mb-4" data-toggle="modal" data-target="#delte">
        حذف مشرف
@@ -816,7 +839,7 @@ td{
           <td>{{ $i }}</td>
           <td>{{ $student->name }}</td>
           <td>{{$student->score}}</td>
-          @can('addScore')
+          @can('addScore', [$club->id , $thecolor])
           <td><form action="{{ route('student.add.score', $student->id) }}"
             method="post" 
             autocomplete="off"
@@ -825,7 +848,7 @@ td{
             <input type="button" class="btn btn-primary ooi" value="إضافة النقاط"  data-toggle="modal" data-target="#oo" onclick="document.getElementById('ffd').action = '{{ route('student.add.score', $student->id) }}' ">
           </form></td>
           @endcan
-          @can('delStudent')
+          @can('delStudent', [$club->id , $thecolor])
           <td><form action="{{ route('student.del', $student->id) }}"
             method="post" 
             autocomplete="off"

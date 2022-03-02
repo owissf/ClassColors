@@ -268,10 +268,22 @@ td{
           <!-- Modal body -->
           <div class="modal-body">
             <h4>هل أنت متأكد أنك تريد حذف هذا الطالب؟</h4>
-
+            <label for="sel" class="float-end">الدور</label>
             <select class="form-select" size="3" name="selectt" aria-label="size 3 select example" id="sel">
               @foreach($roles as $role)
               <option value="{{ $role->id }}">{{ $role->role }}</option> 
+              @endforeach
+            </select>
+            <label for="club" class="float-end">النادي</label>
+            <select class="form-select" size="3" name="club" aria-label="size 3 select example" id="club">
+              <option value="">لا شيء</option> 
+              <option value="{{ $club->id }}">{{ $club->name }}</option> 
+            </select>
+            <label for="color" class="float-end">اللون</label>
+            <select class="form-select" size="3" name="color" aria-label="size 3 select example" id="color">
+              <option value="">لا شيء</option> 
+              @foreach($colors as $color)
+              <option value="{{ $color->id }}">{{ $color->name }}</option> 
               @endforeach
             </select>
           </div>
@@ -284,38 +296,188 @@ td{
         </div>
       </div>
     </div>
+
+    <div class="modal fade" id="joinperms">
+        <div class="modal-dialog modal-dialog-scrollable">
+          <div class="modal-content">
+          
+            <!-- Modal Header -->
+            <div class="modal-header">
+              <h4 class="modal-title">join perms</h4>
+              <button type="button" class="bg-white border-0 fs-2" data-dismiss="modal">&times;</button>
+            </div>
+            
+            <!-- Modal body -->
+            <form  method="post" 
+                action=""
+                      autocomplete="off"
+                      enctype="multipart/form-data" id="joinpermsfrom">
+                @csrf
+            <div class="modal-body">
+                
+
+                  <select class="form-select" size="3" aria-label="size 3 select example">
+                    @foreach($allperms as $allperm)
+                      <option value="">
+                       <input class="form-check-input" name="checkbox[]" type="checkbox" value="{{ $allperm->id }}">
+                       {{ $allperm->perm }}
+                      </option> 
+                    @endforeach
+                  </select>  
+      
+            </div>
+
+            
+            <!-- Modal footer -->
+            <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-dismiss="modal">غير موافق</button>
+            <button type="submit" class="btn btn-primary">
+                {{ __('موافق') }}
+              </button>
+            
+            </div>
+            </form>
+          </div>
+        </div>
+    </div>
+
+
+    @can('addRoles', [$club->id , '']) 
+      <div class="modal fade" id="addroles">
+        <div class="modal-dialog">
+          <div class="modal-content">
+          
+            <!-- Modal Header -->
+            <div class="modal-header">
+              <h4 class="modal-title">إضافة دور جديد</h4>
+              <button type="button" class="bg-white border-0 fs-2" data-dismiss="modal">&times;</button>
+            </div>
+            
+            <!-- Modal body -->
+            <form  method="post" 
+                action="{{ route('role.create' , $club->id) }}"
+                      autocomplete="off"
+                      enctype="multipart/form-data">
+                @csrf
+            <div class="modal-body">
+              
+                      <div class="form-group">
+                        <label for="name" class="float-end">الدور</label>
+                        <input type="text" name="nameRole" required
+                                value="{{ old('nameRole') }}"
+                              placeholder="الدور" class="form-control" id="nameRole">
+                        @if($errors->has('nameRole'))
+                            <div class="error" style="color:red">{{ $errors->first('nameRole') }}</div>
+                        @endif
+                    </div>
+              
+            </div>
+
+            
+            <!-- Modal footer -->
+            <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-dismiss="modal">غير موافق</button>
+            <button type="submit" class="btn btn-primary">
+                {{ __('موافق') }}
+              </button>
+            
+            </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    @endcan 
+
+    <div class="modal fade" id="joinrolesperms">
+        <div class="modal-dialog">
+          <div class="modal-content">
+          
+            <!-- Modal Header -->
+            <div class="modal-header">
+              <h4 class="modal-title">ربط </h4>
+              <button type="button" class="bg-white border-0 fs-2" data-dismiss="modal">&times;</button>
+            </div>
+            
+            <!-- Modal body -->
+            
+
+
+            <div class="modal-body">
+              
+            <label for="sel" class="float-end">الدور</label>
+            <select class="form-select" size="3" name="selectt" aria-label="size 3 select example" id="selectRole">
+              @foreach($roles as $role)
+                <option value="{{ $role->id }}">{{ $role->role }}</option> 
+              @endforeach
+            </select>  
+              
+            </div>
+
+            
+            <!-- Modal footer -->
+            <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-dismiss="modal">غير موافق</button>
+            <button type="button" id="btnrole" class="btn btn-primary" onclick="
+            var ty = document.getElementById('selectRole').vlaue;
+            " data-toggle="modal" data-target="#joinperms" data-dismiss="modal">
+                {{ __('موافق') }}
+              </button>
+            
+            </div>
+            
+          </div>
+        </div>
+    </div>
     
+
+
+
+
 <h1 class="text-center my-4 h1 ">أسماء الطلاب </h1>
 <div class="row">
-@can('addStudent')
+@can('addStudent', [$club->id , ''])
   <div class="col-lg col-sm-4 col-xs-6">
     <button type="button" class="btn btn-primary float-end mb-4" data-toggle="modal" data-target="#addstudent">
         إضافة طالب
       </button>
   </div>
   @endcan
-  @can('delColor')
+  @can('addRoles', [$club->id , ''])
+  <div class="col-lg col-sm-4 col-xs-6">
+    <button type="button" class="btn btn-primary float-end mb-4" data-toggle="modal" data-target="#addroles">
+        إضافة دور جديد
+      </button>
+  </div>
+  @endcan
+  
+  <div class="col-lg col-sm-4 col-xs-6">
+    <button type="button" class="btn btn-primary float-end mb-4" data-toggle="modal" data-target="#joinrolesperms">
+        ربط الأدوار بالصلاحيات
+      </button>
+  </div>
+  
+  @can('delColor', [$club->id , ''])
   <div class="col-lg col-sm-4 col-xs-6">
     <button type="button" class="btn btn-primary float-end mb-4" data-toggle="modal" data-target="#delcolor">
        حذف الشعبة
       </button>
   </div>
   @endcan
-  @can('addTeNew')
+  @can('addTeNew', [$club->id , ''])
   <div class="col-lg col-sm-4 col-xs-6">
     <button type="button" class="btn btn-primary float-end mb-4" data-toggle="modal" data-target="#addte-new">
        إضافة مشرف جديد
       </button>
   </div>
   @endcan
-  @can('addTeOld')
+  @can('addTeOld', [$club->id , ''])
   <div class="col-lg col-sm-5 col-xs-6">
     <button type="button" class="btn btn-primary float-end mb-4" data-toggle="modal" data-target="#addte-old">
      إضافة مشرف قديم
       </button>
   </div>
   @endcan
-  @can('delTe')
+  @can('delTe' , [$club->id , ''])
   <div class="col-lg col-sm-5 col-xs-12">
     <button type="button" class="btn btn-primary float-end mb-4" data-toggle="modal" data-target="#delte">
        حذف مشرف
@@ -343,13 +505,19 @@ td{
           <td>{{ $i }}</td>
           <td>{{ $user->name }}</td>
           <td>{{$user->email}}</td>
-          <td><form action="{{ route('user.role', $user->id) }}"
-            method="post" 
-            autocomplete="off"
-            enctype="multipart/form-data">
-            @csrf
-            <input type="button" class="btn btn-primary ooi" value="add role" data-toggle="modal" data-target="#os" onclick="document.getElementById('sddd').action = '{{ route('user.role', $user->id) }}' ">
-          </form></td>
+          
+          <td>
+            @can ('addRole' , [$club->id , ''])
+              <form action="{{ route('user.role', [$user->id , $club->id]) }}"
+              method="post" 
+              autocomplete="off"
+              enctype="multipart/form-data">
+                @csrf
+                <input type="button" class="btn btn-primary ooi" value="add role" data-toggle="modal" data-target="#os" onclick="document.getElementById('sddd').action = '{{ route('user.role', [$user->id , $club->id]) }}' ">
+              </form>
+            @endcan
+          </td>
+          
 
       </tr>
       <?php $i += 1; ?>
@@ -367,6 +535,13 @@ td{
 </script>
 <!-- Scripts -->
 <script src="{{ asset('js/app.js') }}" defer></script>
+<script>
+ 
+  $('btnrole').click(function(){
+    var ty = document.getElementById('selectRole').vlaue;
+    document.getElementById('joinpermsform').action = '{{ route("role.joinperms" , ' + ty + ') }}';
+  });
+</script>
 
 </body>
 

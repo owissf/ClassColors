@@ -12,4 +12,13 @@ class UserRole extends Model
     protected $guarded  = [];
 
     protected $fillable = ['user_id' , 'role_id'];
+
+    public function clubs()
+    {
+        return $this->belongsToMany(Club::class,'userrole_clubs' ,'club_id' , 'userrole_id' );
+    }
+    public function colors()
+    {
+        return $this->belongsToMany(Color::class,'userrole_colors','color_id','userrole_id');
+    }
 }
